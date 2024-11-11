@@ -5,14 +5,31 @@ from tkinter import filedialog, simpledialog
 from tkinter import ttk
 import threading
 
-# 版本 1.1 - 增加进度条和后台线程
-# 日期：2024年11月11日
+def select_folder():
+    folder_path = filedialog.askdirectory(title="选择文件夹")
+    return folder_path
 
+def count_files(folder_path):
+    total_files = 0
+    for root, dirs, files in os.walk(folder_path):
+        total_files += len(files)
+    return total_files
+
+# def update_progress(progress_bar, label, processed_files, total_files, message):
+    # label.config(text=message)
+    # progress_bar['value'] = processed_files
+    # progress_bar.update_idletasks()
 def update_progress(progress_bar, label, processed_files, total_files, message):
-    label.config(text=message)
+    # 计算百分比
+    percent_complete = (processed_files / total_files) * 100
+
+    # 更新标签上的文字
+    label.config(text=f"{message} {percent_complete:.2f}% 完成")
+
+    # 更新进度条
     progress_bar['value'] = processed_files
     progress_bar.update_idletasks()
-
+    
 def change_extension_to_xml(folder_path, progress_bar, progress_label, total_files):
     original_extensions = {}
     failed_modifications = []
@@ -57,7 +74,7 @@ def change_extension_to_xml(folder_path, progress_bar, progress_label, total_fil
             
             # Update progress bar
             processed_files += 1
-            update_progress(progress_bar, progress_label, processed_files, total_files * 2, "修改扩展名...")
+            update_progress(progress_bar, progress_label, processed_files, total_files * 2, "解密中...")
 
     return original_extensions, failed_modifications
 
@@ -83,7 +100,7 @@ def restore_original_extension(original_extensions, wait_time, progress_bar, pro
         
         # Update progress bar
         processed_files += 1
-        update_progress(progress_bar, progress_label, processed_files, total_files * 2, "恢复原扩展名...")
+        update_progress(progress_bar, progress_label, processed_files, total_files * 2, "解密中...")
 
     return failed_restorations
 
@@ -113,7 +130,7 @@ def main():
     folder_path = select_folder()
 
     if folder_path:
-        wait_time = simpledialog.askinteger("输入停留时间", "请输入每个文件的停留时间（秒）:", minvalue=1, initialvalue=15)
+        wait_time = simpledialog.askinteger("输入停留时间", "请输入每个文件的停留时间，文件越多越需要时间（秒）:", minvalue=1, initialvalue=15)
         total_files = count_files(folder_path)
 
         root = tk.Tk()
@@ -134,4 +151,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
